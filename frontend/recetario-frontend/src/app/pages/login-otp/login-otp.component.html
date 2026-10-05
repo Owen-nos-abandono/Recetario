@@ -1,0 +1,21 @@
+<div class="auth-page">
+  <p-card header="Verificación en dos pasos" styleClass="auth-card">
+    <p>Enviamos un código de acceso a <strong>{{ email }}</strong>.</p>
+
+    <form (ngSubmit)="onSubmit()" #f="ngForm" class="auth-form">
+      <div class="field">
+        <label for="code">Código</label>
+        <input pInputText id="code" name="code" [(ngModel)]="code" required maxlength="6" class="w-full" />
+      </div>
+
+      <p-message *ngIf="errorMessage" severity="error" [text]="errorMessage" styleClass="w-full"></p-message>
+      <p-message *ngIf="successMessage" severity="success" [text]="successMessage" styleClass="w-full"></p-message>
+
+      <button pButton type="submit" label="Entrar" class="w-full" [loading]="loading" [disabled]="!f.valid"></button>
+      <button pButton type="button" label="Reenviar código" class="w-full p-button-text" [loading]="resending"
+        (click)="resendCode()"></button>
+
+      <p class="switch-link"><a routerLink="/login">Cancelar</a></p>
+    </form>
+  </p-card>
+</div>

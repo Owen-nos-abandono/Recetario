@@ -1,0 +1,105 @@
+<p-toast></p-toast>
+<p-confirmDialog></p-confirmDialog>
+
+<div class="page-header">
+  <h1>Recetas</h1>
+  <div class="header-actions">
+    <button pButton type="button" [label]="showInactive ? 'Ver activas' : 'Ver dadas de baja'"
+      class="p-button-text" (click)="toggleShowInactive()"></button>
+    <button pButton type="button" label="Nueva receta" icon="pi pi-plus" (click)="openCreateDialog()"></button>
+    <button pButton type="button" label="Cerrar sesión" icon="pi pi-sign-out" class="p-button-secondary"
+      (click)="logout()"></button>
+  </div>
+</div>
+
+<div *ngIf="loading" class="empty-state">Cargando recetas...</div>
+<div *ngIf="!loading && recipes.length === 0" class="empty-state">
+  No hay recetas {{ showInactive ? 'dadas de baja' : 'activas' }} todavía.
+</div>
+
+<div class="recipe-grid">
+  <p-card *ngFor="let recipe of recipes" [header]="recipe.title" styleClass="recipe-card">
+    <ng-template pTemplate="subtitle">
+      <p-tag *ngIf="recipe.category" [value]="recipe.category" severity="info"></p-tag>
+      <p-tag *ngIf="!recipe.is_active" value="Dada de baja" severity="warn"></p-tag>
+    </ng-template>
+
+    <p class="meta">Por {{ recipe.owner_name }}</p>
+
+    <p *ngIf="recipe.description">{{ recipe.description }}</p>
+
+    <p class="meta" *ngIf="recipe.servings || recipe.prep_time_minutes">
+      <span *ngIf="recipe.servings">{{ recipe.servings }} porciones</span>
+      <span *ngIf="recipe.prep_time_minutes"> · {{ recipe.prep_time_minutes }} min</span>
+    </p>
+
+    <details>
+      <summary>Ingredientes</summary>
+      <pre>{{ recipe.ingredients }}</pre>
+    </details>
+    <details>
+      <summary>Preparación</summary>
+      <pre>{{ recipe.steps }}</pre>
+    </details>
+
+    <ng-template pTemplate="footer">
+      <div class="card-actions">
+        <button pButton type="button" icon="pi pi-pencil" label="Editar" class="p-button-text"
+          (click)="openEditDialog(recipe)"></button>
+        <button *ngIf="recipe.is_active" pButton type="button" icon="pi pi-trash" label="Dar de baja"
+          class="p-button-text p-button-danger" (click)="confirmDeactivate(recipe)"></button>
+        <button *ngIf="!recipe.is_active" pButton type="button" icon="pi pi-refresh" label="Reactivar"
+          class="p-button-text p-button-success" (click)="reactivate(recipe)"></button>
+      </div>
+    </ng-template>
+  </p-card>
+</div>
+
+<p-dialog [(visible)]="dialogVisible" [modal]="true" [style]="{ width: '32rem' }"
+  [header]="editingId ? 'Editar receta' : 'Nueva receta'">
+  <form (ngSubmit)="saveRecipe()" #f="ngForm" class="recipe-form">
+    <div class="field">
+      <label for="title">Título</label>
+      <input pInputText id="title" name="title" [(ngModel)]="form.title" required class="w-full" />
+    </div>
+
+    <div class="field">
+      <label for="category">Categoría</label>
+      <input pInputText id="category" name="category" [(ngModel)]="form.category" class="w-full" />
+    </div>
+
+    <div class="field-row">
+      <div class="field">
+        <label for="servings">Porciones</label>
+        <p-inputNumber id="servings" name="servings" [(ngModel)]="form.servings" [min]="1"></p-inputNumber>
+      </div>
+      <div class="field">
+        <label for="prep">Tiempo (min)</label>
+        <p-inputNumber id="prep" name="prep" [(ngModel)]="form.prep_time_minutes" [min]="0"></p-inputNumber>
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="description">Descripción</label>
+      <textarea pInputTextarea id="description" name="description" [(ngModel)]="form.description"
+        rows="2" class="w-full"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="ingredients">Ingredientes (uno por línea)</label>
+      <textarea pInputTextarea id="ingredients" name="ingredients" [(ngModel)]="form.ingredients"
+        rows="4" required class="w-full"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="steps">Preparación (un paso por línea)</label>
+      <textarea pInputTextarea id="steps" name="steps" [(ngModel)]="form.steps"
+        rows="4" required class="w-full"></textarea>
+    </div>
+
+    <div class="dialog-actions">
+      <button pButton type="button" label="Cancelar" class="p-button-text" (click)="dialogVisible = false"></button>
+      <button pButton type="submit" label="Guardar" [loading]="saving" [disabled]="!f.valid"></button>
+    </div>
+  </form>
+</p-dialog>
