@@ -42,3 +42,7 @@ websockets==17.1
 wrapt==2.4.0
 
 psycopg2-binary
+
+psycopg2-binary
+
+psycopg2-binary
